@@ -1,0 +1,43 @@
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urlparse
+from colorama import Fore, Style
+
+# Function to crawl a URL and display full links with different colors for different domains
+def crawl_url(url):
+    try:
+        # Send an HTTP GET request to the URL
+        response = requests.get(url)
+
+        # Check if the request was successful
+        if response.status_code == 200:
+            # Parse the HTML content of the page
+            soup = BeautifulSoup(response.text, 'html.parser')
+
+            # Find all anchor tags (links) on the page
+            links = soup.find_all('a')
+
+            # Display the full links found with different colors for different domains
+            for link in links:
+                href = link.get('href')
+                if href:
+                    full_url = urljoin(url, href)
+                    parsed_url = urlparse(full_url)
+                    domain = parsed_url.netloc
+                    color = Fore.GREEN if domain == urlparse(url).netloc else Fore.RESET
+                    print(f"{color}{full_url}{Style.RESET_ALL}")
+
+        else:
+            print(f"Failed to retrieve data from {url}. Status code: {response.status_code}")
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+if __name__ == "__main__":
+    from urllib.parse import urljoin
+
+    # Prompt the user to enter the URL
+    url_to_crawl = input("Enter the URL you want to crawl: ")
+
+    # Call the function to crawl and display full links with different colors
+    crawl_url(url_to_crawl)
